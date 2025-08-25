@@ -271,74 +271,7 @@ npm run eject      # Eject from Create React App
 └── docker-compose.yml     # Multi-container setup
 ```
 
-## 🚀 Deployment
 
-### Production Deployment
-
-1. **Environment Variables**
-   ```bash
-   NODE_ENV=production
-   PORT=5000
-   MONGODB_URI=your_mongodb_connection_string
-   ```
-
-2. **Build and Deploy**
-   ```bash
-   # Build frontend
-   cd frontend
-   npm run build
-   
-   # Start backend
-   npm start
-   ```
-
-### Cloud Deployment
-
-#### Render
-1. Connect your GitHub repository
-2. Set environment variables
-3. Deploy automatically on push
-
-#### Heroku
-1. Create Heroku app
-2. Add MongoDB add-on
-3. Deploy using Git
-
-#### Railway
-1. Connect repository
-2. Set environment variables
-3. Deploy automatically
-
-## 🧪 Testing
-
-### Backend Testing
-```bash
-npm test
-```
-
-### Frontend Testing
-```bash
-cd frontend
-npm test
-```
-
-## 📝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🤝 Support
-
-For support and questions:
-- Create an issue in the repository
-- Contact the development team
 
 ## 🎓 Learning Objectives
 
@@ -352,7 +285,3 @@ This project demonstrates:
 - **UI/UX Design**: Modern, responsive user interface
 - **Deployment**: Containerization and cloud deployment
 - **Security**: Input validation and security best practices
-
----
-
-**Built with ❤️ for modern enterprise application development** 
