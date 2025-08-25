@@ -1,12 +1,13 @@
 import React from 'react';
 import { useQuery } from 'react-query';
 import { BookOpen, Users, GraduationCap, TrendingUp } from 'lucide-react';
-import { getStats } from '../services/api';
+import { getStats, getRecentActivity } from '../services/api';
 import StatCard from '../components/StatCard';
 import Chart from '../components/Chart';
 
 const Dashboard = () => {
   const { data: stats, isLoading, error } = useQuery('dashboard-stats', getStats);
+  const { data: activityData } = useQuery('recent-activity', getRecentActivity);
 
   if (isLoading) {
     return (
@@ -23,6 +24,31 @@ const Dashboard = () => {
       </div>
     );
   }
+
+  const formatTimeAgo = (timestamp) => {
+    const now = new Date();
+    const activityTime = new Date(timestamp);
+    const diffInHours = Math.floor((now - activityTime) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours === 1) return '1 hour ago';
+    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays === 1) return '1 day ago';
+    return `${diffInDays} days ago`;
+  };
+
+  const getActivityColor = (color) => {
+    const colors = {
+      green: 'bg-green-500',
+      blue: 'bg-blue-500',
+      purple: 'bg-purple-500',
+      orange: 'bg-orange-500',
+      red: 'bg-red-500'
+    };
+    return colors[color] || 'bg-gray-500';
+  };
 
   const statCards = [
     {
@@ -98,27 +124,15 @@ const Dashboard = () => {
       <div className="card">
         <h3 className="text-lg font-semibold text-secondary-900 mb-4">Recent Activity</h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between py-2 border-b border-secondary-100">
+          {activityData?.activities?.map((activity, index) => (
+            <div key={activity.id || index} className="flex items-center justify-between py-2 border-b border-secondary-100">
             <div className="flex items-center">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-              <span className="text-secondary-700">New course "Advanced Web Development" added</span>
+                <div className={`w-2 h-2 rounded-full mr-3 ${getActivityColor(activity.color)}`}></div>
+                <span className="text-secondary-700">{activity.message}</span>
             </div>
-            <span className="text-sm text-secondary-500">2 hours ago</span>
-          </div>
-          <div className="flex items-center justify-between py-2 border-b border-secondary-100">
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-              <span className="text-secondary-700">Student John Doe enrolled in CS101</span>
+              <span className="text-sm text-secondary-500">{formatTimeAgo(activity.timestamp)}</span>
             </div>
-            <span className="text-sm text-secondary-500">4 hours ago</span>
-          </div>
-          <div className="flex items-center justify-between py-2 border-b border-secondary-100">
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
-              <span className="text-secondary-700">Grade updated for Math201</span>
-            </div>
-            <span className="text-sm text-secondary-500">6 hours ago</span>
-          </div>
+          ))}
         </div>
       </div>
     </div>

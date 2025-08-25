@@ -38,17 +38,54 @@ const StudentForm = () => {
   const { data: student, isLoading: isLoadingStudent } = useQuery(
     ['student', id],
     () => getStudent(id),
-    { enabled: isEditing }
+    { enabled: isEditing, staleTime: 0 } // Add staleTime to refetch immediately on navigation
   );
 
   useEffect(() => {
     if (student) {
       setFormData({
-        ...student,
-        dateOfBirth: student.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : ''
+        studentId: student.studentId || '',
+        firstName: student.firstName || '',
+        lastName: student.lastName || '',
+        email: student.email || '',
+        phone: student.phone || '',
+        dateOfBirth: student.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : '',
+        major: student.major || '',
+        yearLevel: student.yearLevel || 'Freshman',
+        gpa: student.gpa || 0.0,
+        totalCredits: student.totalCredits || 0,
+        isActive: student.isActive !== undefined ? student.isActive : true,
+        address: {
+          street: student.address?.street || '',
+          city: student.address?.city || '',
+          state: student.address?.state || '',
+          zipCode: student.address?.zipCode || '',
+          country: student.address?.country || ''
+        }
+      });
+    } else if (!isEditing) { // Reset form for new student if not editing
+      setFormData({
+        studentId: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        dateOfBirth: '',
+        major: '',
+        yearLevel: 'Freshman',
+        gpa: 0.0,
+        totalCredits: 0,
+        isActive: true,
+        address: {
+          street: '',
+          city: '',
+          state: '',
+          zipCode: '',
+          country: ''
+        }
       });
     }
-  }, [student]);
+  }, [student, isEditing]);
 
   const createMutation = useMutation(createStudent, {
     onSuccess: () => {

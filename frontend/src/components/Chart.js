@@ -20,7 +20,7 @@ const Chart = ({ data, type, height = 300 }) => {
         {data.map((item, index) => (
           <div key={index} className="flex items-center">
             <div className="w-24 text-sm text-secondary-600">
-              {item._id?.semester} {item._id?.year}
+              {item.semester || item._id?.semester}
             </div>
             <div className="flex-1 ml-4">
               <div className="flex items-center">
@@ -89,7 +89,7 @@ const Chart = ({ data, type, height = 300 }) => {
                 style={{ backgroundColor: colors[index % colors.length] }}
               ></div>
               <span className="text-sm text-secondary-700">
-                {item._id}: {item.count || 0}
+                {item.major || item._id}: {item.count || 0}
               </span>
             </div>
           ))}

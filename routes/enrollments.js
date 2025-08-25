@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const Enrollment = require('../models/Enrollment');
 const Course = require('../models/Course');
 const Student = require('../models/Student');
+const { logActivity } = require('../routes/activity'); // Import logActivity
 const router = express.Router();
 
 // Validation middleware
@@ -137,6 +138,13 @@ router.post('/', validateEnrollment, async (req, res) => {
 
     // Update course enrollment count
     await Course.findByIdAndUpdate(req.body.course, { $inc: { enrolled: 1 } });
+    
+    // Populate student and course for activity logging
+    await enrollment.populate('student', 'firstName lastName');
+    await enrollment.populate('course', 'title');
+    
+    // Log activity
+    logActivity('Enrollment Created', 'Enrollment', enrollment._id, `New enrollment for "${enrollment.student.firstName} ${enrollment.student.lastName}" in "${enrollment.course.title}" created.`);
 
     res.status(201).json(enrollment);
   } catch (error) {
@@ -156,11 +164,16 @@ router.put('/:id', validateEnrollment, async (req, res) => {
       req.params.id,
       req.body,
       { new: true, runValidators: true }
-    );
+    )
+      .populate('student', 'firstName lastName')
+      .populate('course', 'title');
 
     if (!enrollment) {
       return res.status(404).json({ error: 'Enrollment not found' });
     }
+
+    // Log activity
+    logActivity('Enrollment Updated', 'Enrollment', enrollment._id, `Enrollment for "${enrollment.student.firstName} ${enrollment.student.lastName}" in "${enrollment.course.title}" updated.`);
 
     res.json(enrollment);
   } catch (error) {
@@ -172,13 +185,19 @@ router.put('/:id', validateEnrollment, async (req, res) => {
 router.put('/:id/grade', async (req, res) => {
   try {
     const { grade, comments } = req.body;
-    const enrollment = await Enrollment.findById(req.params.id);
+    const enrollment = await Enrollment.findById(req.params.id)
+      .populate('student', 'firstName lastName')
+      .populate('course', 'title');
     if (!enrollment) {
       return res.status(404).json({ error: 'Enrollment not found' });
     }
     enrollment.grade = grade;
     if (comments !== undefined) enrollment.comments = comments;
     await enrollment.save();
+
+    // Log activity
+    logActivity('Enrollment Grade Updated', 'Enrollment', enrollment._id, `Grade for enrollment in "${enrollment.course.title}" updated to ${grade}.`);
+
     res.json(enrollment);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -192,11 +211,16 @@ router.delete('/:id', async (req, res) => {
       req.params.id,
       { isActive: false },
       { new: true }
-    );
+    )
+      .populate('student', 'firstName lastName')
+      .populate('course', 'title');
 
     if (!enrollment) {
       return res.status(404).json({ error: 'Enrollment not found' });
     }
+    
+    // Log activity
+    logActivity('Enrollment Deleted', 'Enrollment', enrollment._id, `Enrollment for "${enrollment.student.firstName} ${enrollment.student.lastName}" in "${enrollment.course.title}" deleted (soft delete).`, 'red');
 
     res.json({ message: 'Enrollment deleted successfully' });
   } catch (error) {

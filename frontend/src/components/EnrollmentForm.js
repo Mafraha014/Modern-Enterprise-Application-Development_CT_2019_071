@@ -29,27 +29,38 @@ const EnrollmentForm = () => {
   const { data: enrollment, isLoading: isLoadingEnrollment } = useQuery(
     ['enrollment', id],
     () => getEnrollment(id),
-    { enabled: isEditing }
+    { enabled: isEditing, staleTime: 0 } // Add staleTime to refetch immediately on navigation
   );
 
   // Fetch students and courses for dropdowns
-  const { data: studentsData } = useQuery('students-list', () => getStudents({ limit: 1000 }));
-  const { data: coursesData } = useQuery('courses-list', () => getCourses({ limit: 1000 }));
+  const { data: studentsData } = useQuery('students-list', () => getStudents({ limit: 1000 }), { staleTime: 0 });
+  const { data: coursesData } = useQuery('courses-list', () => getCourses({ limit: 1000 }), { staleTime: 0 });
 
   useEffect(() => {
     if (enrollment) {
       setFormData({
-        student: enrollment.student?._id || enrollment.student,
-        course: enrollment.course?._id || enrollment.course,
-        semester: enrollment.semester,
-        year: enrollment.year,
-        status: enrollment.status,
-        attendance: enrollment.attendance,
-        totalClasses: enrollment.totalClasses,
+        student: enrollment.student?._id || '',
+        course: enrollment.course?._id || '',
+        semester: enrollment.semester || 'Fall',
+        year: enrollment.year || new Date().getFullYear(),
+        status: enrollment.status || 'Enrolled',
+        attendance: enrollment.attendance || 0,
+        totalClasses: enrollment.totalClasses || 0,
         comments: enrollment.comments || ''
       });
+    } else if (!isEditing) { // Reset form for new enrollment if not editing
+      setFormData({
+        student: '',
+        course: '',
+        semester: 'Fall',
+        year: new Date().getFullYear(),
+        status: 'Enrolled',
+        attendance: 0,
+        totalClasses: 0,
+        comments: ''
+      });
     }
-  }, [enrollment]);
+  }, [enrollment, isEditing]);
 
   const createMutation = useMutation(createEnrollment, {
     onSuccess: () => {

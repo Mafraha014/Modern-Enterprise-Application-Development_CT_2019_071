@@ -30,14 +30,36 @@ const CourseForm = () => {
   const { data: course, isLoading: isLoadingCourse } = useQuery(
     ['course', id],
     () => getCourse(id),
-    { enabled: isEditing }
+    { enabled: isEditing, staleTime: 0 } // Add staleTime to refetch immediately on navigation
   );
 
   useEffect(() => {
     if (course) {
-      setFormData(course);
+      setFormData({
+        code: course.code || '',
+        title: course.title || '',
+        description: course.description || '',
+        credits: course.credits || 3,
+        instructor: course.instructor || '',
+        capacity: course.capacity || 30,
+        semester: course.semester || 'Fall',
+        year: course.year || new Date().getFullYear(),
+        isActive: course.isActive !== undefined ? course.isActive : true
+      });
+    } else if (!isEditing) { // Reset form for new course if not editing
+      setFormData({
+        code: '',
+        title: '',
+        description: '',
+        credits: 3,
+        instructor: '',
+        capacity: 30,
+        semester: 'Fall',
+        year: new Date().getFullYear(),
+        isActive: true
+      });
     }
-  }, [course]);
+  }, [course, isEditing]);
 
   const createMutation = useMutation(createCourse, {
     onSuccess: () => {

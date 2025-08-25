@@ -2,6 +2,8 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { BookOpen, Users, GraduationCap, BarChart3, Home } from 'lucide-react';
 import Sidebar from './components/Sidebar';
+import Login from './components/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import Courses from './pages/Courses';
 import Students from './pages/Students';
@@ -19,6 +21,13 @@ const navigation = [
 
 function App() {
   return (
+    <Routes>
+      {/* Public route */}
+      <Route path="/login" element={<Login />} />
+      
+      {/* Protected routes */}
+      <Route path="/*" element={
+        <ProtectedRoute>
     <div className="flex h-screen bg-secondary-50">
       <Sidebar navigation={navigation} />
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -40,6 +49,9 @@ function App() {
         </main>
       </div>
     </div>
+        </ProtectedRoute>
+      } />
+    </Routes>
   );
 }
 

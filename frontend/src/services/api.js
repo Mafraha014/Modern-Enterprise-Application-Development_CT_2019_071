@@ -122,4 +122,15 @@ export const getStats = async () => {
 export const healthCheck = () => 
   api.get('/health').then(res => res.data);
 
+// Recent Activity
+export const getRecentActivity = () => 
+  api.get('/activity').then(res => res.data);
+
+// Authentication APIs
+export const login = (credentials) => 
+  api.post('/auth/login', credentials).then(res => res.data);
+
+export const logout = () => 
+  api.post('/auth/logout').then(res => res.data);
+
 export default api; 

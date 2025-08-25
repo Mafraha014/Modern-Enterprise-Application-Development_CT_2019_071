@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Course = require('../models/Course');
+const { logActivity } = require('../routes/activity'); // Import logActivity
 const router = express.Router();
 
 // Validation middleware
@@ -84,6 +85,10 @@ router.post('/', validateCourse, async (req, res) => {
 
     const course = new Course(req.body);
     await course.save();
+    
+    // Log activity
+    logActivity('Course Created', 'Course', course._id, `New course "${course.title}" (${course.code}) created.`);
+    
     res.status(201).json(course);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -107,6 +112,9 @@ router.put('/:id', validateCourse, async (req, res) => {
     if (!course) {
       return res.status(404).json({ error: 'Course not found' });
     }
+    
+    // Log activity
+    logActivity('Course Updated', 'Course', course._id, `Course "${course.title}" (${course.code}) updated.`);
 
     res.json(course);
   } catch (error) {
@@ -127,6 +135,9 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Course not found' });
     }
 
+    // Log activity
+    logActivity('Course Deleted', 'Course', course._id, `Course "${course.title}" (${course.code}) deleted (soft delete).`, 'red');
+    
     res.json({ message: 'Course deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });

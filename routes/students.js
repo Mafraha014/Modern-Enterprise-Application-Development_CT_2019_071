@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Student = require('../models/Student');
+const { logActivity } = require('../routes/activity'); // Import logActivity
 const router = express.Router();
 
 // Validation middleware
@@ -85,6 +86,10 @@ router.post('/', validateStudent, async (req, res) => {
 
     const student = new Student(req.body);
     await student.save();
+
+    // Log activity
+    logActivity('Student Created', 'Student', student._id, `New student "${student.firstName} ${student.lastName}" (${student.studentId}) created.`);
+
     res.status(201).json(student);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -109,6 +114,9 @@ router.put('/:id', validateStudent, async (req, res) => {
       return res.status(404).json({ error: 'Student not found' });
     }
 
+    // Log activity
+    logActivity('Student Updated', 'Student', student._id, `Student "${student.firstName} ${student.lastName}" (${student.studentId}) updated.`);
+
     res.json(student);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -127,6 +135,9 @@ router.delete('/:id', async (req, res) => {
     if (!student) {
       return res.status(404).json({ error: 'Student not found' });
     }
+
+    // Log activity
+    logActivity('Student Deleted', 'Student', student._id, `Student "${student.firstName} ${student.lastName}" (${student.studentId}) deleted (soft delete).`, 'red');
 
     res.json({ message: 'Student deleted successfully' });
   } catch (error) {

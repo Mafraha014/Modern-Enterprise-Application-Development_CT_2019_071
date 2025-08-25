@@ -71,8 +71,8 @@ const Enrollments = () => {
     }
   };
 
-  const confirmGrade = () => {
-    if (enrollmentToGrade && gradeData.grade) {
+  const confirmGradeUpdate = () => {
+    if (enrollmentToGrade) {
       gradeMutation.mutate({ id: enrollmentToGrade._id, data: gradeData });
     }
   };
@@ -400,7 +400,7 @@ const Enrollments = () => {
               Cancel
             </button>
             <button
-              onClick={confirmGrade}
+              onClick={confirmGradeUpdate}
               className="btn-primary"
               disabled={gradeMutation.isLoading || !gradeData.grade}
             >
